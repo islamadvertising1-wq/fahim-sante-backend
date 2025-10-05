@@ -137,7 +137,56 @@ app.get('/api/appointments', (req, res) => {
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route non trouvée' });
 });
+// Stockage temporaire des utilisateurs
+let users = [];
 
+// Route d'inscription
+app.post('/api/register', (req, res) => {
+    const { name, email, password, role } = req.body;
+    
+    if (!name || !email || !password || !role) {
+        return res.status(400).json({ error: 'Tous les champs sont requis' });
+    }
+    
+    const existingUser = users.find(user => user.email === email);
+    if (existingUser) {
+        return res.status(400).json({ error: 'Cet email est déjà utilisé' });
+    }
+    
+    const newUser = {
+        id: users.length + 1,
+        name,
+        email,
+        password, // ⚠️ En production, utilise bcrypt pour hasher
+        role,
+        created_at: new Date().toISOString()
+    };
+    
+    users.push(newUser);
+    res.status(201).json({ 
+        message: 'Inscription réussie', 
+        user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role } 
+    });
+});
+
+// Route de connexion
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email et mot de passe requis' });
+    }
+    
+    const user = users.find(u => u.email === email && u.password === password);
+    if (!user) {
+        return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+    }
+    
+    res.json({ 
+        message: 'Connexion réussie', 
+        user: { id: user.id, name: user.name, email: user.email, role: user.role } 
+    });
+});
 // Démarrer le serveur - CONFIGURATION RENDER CORRECTE
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Serveur Fahim Santé démarré sur le port ${PORT}`);

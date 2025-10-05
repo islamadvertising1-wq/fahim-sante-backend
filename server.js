@@ -2,8 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
-
+const PORT = process.env.PORT || 3000;
 const doctors = [
   {
     id: 1,
@@ -24,7 +23,11 @@ app.get('/api/doctors', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log('✅ Serveur démarré sur http://localhost:3000');
+app.listen(PORT, () => {
+  console.log(`✅ Serveur démarré sur le port ${PORT}`);
+});
+app.listen(PORT, () => {
+})
 });
 // Stockage en mémoire des rendez-vous
 let appointments = [];
